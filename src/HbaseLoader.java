@@ -31,7 +31,9 @@ public class HbaseLoader {
 	 */
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
-		scanIndex();
+		//scanIndex();
+
+		
 	}
 	public static void scanIndex() throws Exception
 	{
