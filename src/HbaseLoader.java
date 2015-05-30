@@ -151,6 +151,7 @@ public class HbaseLoader {
 			offset=Bytes.putInt(rowkey, offset, salt);	
 			offset=Bytes.putInt(rowkey, offset, bk);	
 			offset=Bytes.putLong(rowkey, offset, ts);	
+			///Bytes.put
 			//System.out.println(Bytes.toBytes(salt));
 			//offset=Bytes.putBytes(rowkey, offset, Bytes.toBytes(salt), 0, intlength);
 			//System.out.println(rowkey);
@@ -262,5 +263,26 @@ public class HbaseLoader {
 		System.out.println("hbaseload ended:"+(new Date()).toGMTString()+",used time:"+(System.currentTimeMillis()-s)+" ms,inserted "+counter+" rows");
 	
 	}
+	public static void stringtest()
+	{
+		String line="10.190.174.142-----[03/Dec/2011:13:28:11--0800]-GET-/images/filmmediablock/360/GOEMON-NUKI-000159.jpg-HTTP/1.1-200-";
+		int pos_s=0;
+		int pos_e=0;
+		
+	
+		while((pos_e=line.indexOf("-", pos_s))!=-1)
+		{
+			String token=line.substring(pos_s,pos_e);		
+			System.out.println("==>"+token);				
+			pos_s=pos_e+1;
+		}
+		
+		if(pos_s<=line.length())
+		{
+			String token=line.substring(pos_s,line.length());		
+			System.out.println("==>"+token);	
+		}
+		System.out.print(pos_s+":"+line.length()+"");
 
+	}
 }
