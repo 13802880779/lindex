@@ -13,7 +13,7 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.gmcc.utils.StrUtils;
 
-public class RowkeyGenerator {
+public abstract  class RowkeyGenerator {
 
 	/**
 	 * 生成cdr的rowkey,rowkey设计原则:
@@ -22,75 +22,25 @@ public class RowkeyGenerator {
 	 */
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub		
+		// TODO Auto-generated method stub	
 	}
 	
-	int msisdnIdx=0;
-	int starttimeIdx=0;
-	int cdrIDIdx=0;
-	String delim="";
-	
-	
-	public void addConfiguration(String confpath)
-	{
-		Configuration conf=new Configuration();
-		conf.addResource(new Path(confpath));
-		msisdnIdx=Integer.parseInt(conf.get("cdr.msisdn.idx"));
-		starttimeIdx=Integer.parseInt(conf.get("cdr.starttime.idx"));
-		cdrIDIdx=Integer.parseInt(conf.get("cdr.cdrid.idx"));
-		delim=conf.get("cdr.delim");
-		//System.out.println(conf.get("msisdn.position"));
-	}
-	
-	public byte[] genLongRowkey(String cdr,int numPartion)
-	{
-		String[] cdrs=StrUtils.split(cdr, delim);
-		
-		if(cdrs.length!=0)
-		{
-			String cdrID=cdrs[cdrIDIdx];
-			if(cdrID.length()>=4)
-				cdrID=cdrID.substring(cdrID.length()-4);
-			else
-			{
-				cdrID=StrUtils.leftPadWithZero((int)Math.random()*10000,4);//生成随机的四位以内数字作为cdrid
-			}
-			return this.generateRowkey(numPartion, cdrs[msisdnIdx], cdrs[starttimeIdx], cdrID);
-		}
-	
-		return null;
-	}
 
-	public byte[] genShortRowkey(String cdr,int numPartion)
-	{
-		String[] cdrs=StrUtils.split(cdr, delim);
-		if(cdrs.length!=0)
-		{
-			long msisdn=Long.parseLong(cdrs[msisdnIdx]);
-			long starttime=Long.parseLong(cdrs[starttimeIdx]);
-			String cdrid=cdrs[cdrIDIdx];
-			int cdrID=0;
-			if(cdrid.length()>=4)
-			{
-				cdrid=cdrid.substring(cdrid.length()-4);
-				cdrID=Integer.parseInt(cdrid);
-			}
-			else
-			{
-				cdrID=(int)Math.random()*10000;//生成随机的四位以内数字作为cdrid
-				//cdrid=StrUtils.leftPadWithZero(cid, 4);
-			}
-			
-			return this.generateRowkey(numPartion, msisdn, starttime, cdrID);
-		}
-		return null;
-	}
+	protected abstract void addConfiguration(String path);
+	protected abstract byte[] genLongRowkey(String cdr,int numPartion);
+	protected abstract byte[] genShortRowkey(String cdr,int numPartion);
+
+	public int MSISDN_LEN=11;
+	public int SALT_LEN=8; 
+
 	
-	private byte[] generateRowkey(int numPartion, long msisdn,long starttime ,int cdrID)
+	protected byte[] generateRowkey(int numPartion, long msisdn,long starttime ,int cdrID)
 	{
+		System.out.println("short rowkey generator:\nnumPartinon:"+numPartion+"\nmsisdn:"+msisdn+"\nstarttime"+starttime+"\ncdrID:"+cdrID);
 		byte[] rowkey=new byte[(Integer.SIZE+Long.SIZE+Long.SIZE+Integer.SIZE)/8];
 		int salt=0;
 		String revMsisdnStr=(new StringBuffer(""+msisdn)).reverse().toString();
+		System.out.println("hashcode:"+revMsisdnStr.hashCode());
 		salt=revMsisdnStr.hashCode()%numPartion;		
 		long revMsisdn=Long.parseLong(revMsisdnStr);
 		int offset=0; 
@@ -102,21 +52,35 @@ public class RowkeyGenerator {
 		return rowkey;
 	}
 	
-	private byte[] generateRowkey(int numPartion, String msisdn, String starttime, String cdrID)
+	protected byte[] generateRowkey(int numPartion, String msisdn, String starttime, String cdrID)
 	{
-		String rowkey;
-		int salt=0;
-		String revMsisdnStr=(new StringBuffer(""+msisdn)).reverse().toString();
-		salt=revMsisdnStr.hashCode()%numPartion;		
-		
-		rowkey=StrUtils.leftPadWithZero(salt,8);//salt补0到8位	
-		rowkey+=StringUtils.leftPad(revMsisdnStr, 11,"0");//msisdn补0到11位
-		rowkey+=StrUtils.long2datestr(Long.parseLong(starttime));//17位
-		rowkey+=cdrID;//4位
-		
-		return Bytes.toBytes(rowkey);
+		System.out.println("long rowkey generator:\nnumPartinon:"+numPartion+"\nmsisdn:"+msisdn+"\nstarttime:"+starttime+"\ncdrID:"+cdrID);
+
+		return this.generateRowkey(numPartion, msisdn, Long.parseLong(starttime), cdrID);	
+	
 	}
 	
+	protected byte[] generateRowkey(int numPartion, String msisdn, long starttime, String cdrID)
+	{
+		System.out.println("long rowkey generator:\nnumPartinon:"+numPartion+"\nmsisdn:"+msisdn+"\nstarttime:"+starttime+"\ncdrID:"+cdrID);
+
+		String rowkey;
+		int salt=0;
+		if(msisdn.length()>this.MSISDN_LEN)
+			msisdn=msisdn.substring(0,this.MSISDN_LEN);
+		
+		String revMsisdnStr=(new StringBuffer(""+msisdn)).reverse().toString();
+		salt=revMsisdnStr.hashCode()%numPartion;		
+		System.out.println("hashcode:"+revMsisdnStr.hashCode());
+
+		rowkey=StrUtils.leftPadWithZero(salt,SALT_LEN)+"|";//salt补0到8位	
+		rowkey+=StringUtils.leftPad(revMsisdnStr, MSISDN_LEN,"0")+"|";//msisdn补0到11位
+		rowkey+=StrUtils.long2datestr(starttime)+"|";//17位
+		rowkey+=cdrID;//4位
+		
+		System.out.println("rowkey before bytes:"+rowkey);
+		return Bytes.toBytes(rowkey);
+	}
 	
 	
 
