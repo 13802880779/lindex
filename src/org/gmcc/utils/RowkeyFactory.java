@@ -1,4 +1,4 @@
-package org.gmcc.dataloader;
+package org.gmcc.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -11,9 +11,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.gmcc.utils.StrUtils;
 
-public abstract  class RowkeyGenerator {
+public abstract  class RowkeyFactory {
 
 	/**
 	 * 生成cdr的rowkey,rowkey设计原则:
@@ -36,12 +35,12 @@ public abstract  class RowkeyGenerator {
 	
 	protected byte[] generateRowkey(int numPartion, long msisdn,long starttime ,int cdrID)
 	{
-		System.out.println("short rowkey generator:\nnumPartinon:"+numPartion+"\nmsisdn:"+msisdn+"\nstarttime"+starttime+"\ncdrID:"+cdrID);
+	//	System.out.println("short rowkey generator:\nnumPartinon:"+numPartion+"\nmsisdn:"+msisdn+"\nstarttime"+starttime+"\ncdrID:"+cdrID);
 		byte[] rowkey=new byte[(Integer.SIZE+Long.SIZE+Long.SIZE+Integer.SIZE)/8];
 		int salt=0;
 		String revMsisdnStr=(new StringBuffer(""+msisdn)).reverse().toString();
-		System.out.println("hashcode:"+revMsisdnStr.hashCode());
-		salt=revMsisdnStr.hashCode()%numPartion;		
+	//	System.out.println(revMsisdnStr);
+		salt=Math.abs(revMsisdnStr.hashCode())%numPartion;		
 		long revMsisdn=Long.parseLong(revMsisdnStr);
 		int offset=0; 
 		offset=Bytes.putInt(rowkey, offset, salt);
@@ -54,7 +53,7 @@ public abstract  class RowkeyGenerator {
 	
 	protected byte[] generateRowkey(int numPartion, String msisdn, String starttime, String cdrID)
 	{
-		System.out.println("long rowkey generator:\nnumPartinon:"+numPartion+"\nmsisdn:"+msisdn+"\nstarttime:"+starttime+"\ncdrID:"+cdrID);
+	//	System.out.println("long rowkey generator:\nnumPartinon:"+numPartion+"\nmsisdn:"+msisdn+"\nstarttime:"+starttime+"\ncdrID:"+cdrID);
 
 		return this.generateRowkey(numPartion, msisdn, Long.parseLong(starttime), cdrID);	
 	
@@ -62,7 +61,7 @@ public abstract  class RowkeyGenerator {
 	
 	protected byte[] generateRowkey(int numPartion, String msisdn, long starttime, String cdrID)
 	{
-		System.out.println("long rowkey generator:\nnumPartinon:"+numPartion+"\nmsisdn:"+msisdn+"\nstarttime:"+starttime+"\ncdrID:"+cdrID);
+	//	System.out.println("long rowkey generator:\nnumPartinon:"+numPartion+"\nmsisdn:"+msisdn+"\nstarttime:"+starttime+"\ncdrID:"+cdrID);
 
 		String rowkey;
 		int salt=0;
@@ -70,15 +69,15 @@ public abstract  class RowkeyGenerator {
 			msisdn=msisdn.substring(0,this.MSISDN_LEN);
 		
 		String revMsisdnStr=(new StringBuffer(""+msisdn)).reverse().toString();
-		salt=revMsisdnStr.hashCode()%numPartion;		
-		System.out.println("hashcode:"+revMsisdnStr.hashCode());
+		salt=Math.abs(revMsisdnStr.hashCode())%numPartion;		
+		//System.out.println("hashcode:"+revMsisdnStr.hashCode());
 
 		rowkey=StrUtils.leftPadWithZero(salt,SALT_LEN)+"|";//salt补0到8位	
 		rowkey+=StringUtils.leftPad(revMsisdnStr, MSISDN_LEN,"0")+"|";//msisdn补0到11位
 		rowkey+=StrUtils.long2datestr(starttime)+"|";//17位
 		rowkey+=cdrID;//4位
 		
-		System.out.println("rowkey before bytes:"+rowkey);
+		//System.out.println("rowkey before bytes:"+rowkey);
 		return Bytes.toBytes(rowkey);
 	}
 	

@@ -1,23 +1,53 @@
-package org.gmcc.dataloader;
+package org.gmcc.utils;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.gmcc.utils.StrUtils;
 
-public class AIUMOCRowkeyGenerator extends RowkeyGenerator {
+public class AiuMocRowkeyGenerator extends RowkeyFactory {
 
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		AIUMOCRowkeyGenerator rg=new AIUMOCRowkeyGenerator();
-		rg.addConfiguration("/home/training/cdr_cs_moc_conf.xml");
-		String cdr="1424332921,1424332242,183,0,0,3,12600,12199,0,1,0,0,,,460003005439325,863654024728610,00560F3A,137sc+JOkEWvP4=9441,0,137ktWsTd1wRUE=4092,460,00,A5F2,9309,,24,1172,,,1182,2268,3028,3030,6564,7388,8056,,,,,13920,13935,13935,10,1,8,2,11,1,05690350710f5314,0,,05690350710f5314,0,13809229441,A5F2,9309,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,05690350710f5314,0";
-		System.out.println(Bytes.toString(rg.genLongRowkey(cdr, 10)).length());
-		System.out.println(StringUtils.leftPad("731", 10,"0"));
+		AiuMocRowkeyGenerator rg=new AiuMocRowkeyGenerator();
+		rg.addConfiguration("/home/training/cdr_aiu_moc_conf.xml");
+		String cdr="";
+		long s=System.currentTimeMillis();
+		BufferedReader br=null;
+		int counter=0;
+		try {
+			 br=new BufferedReader(new FileReader("/home/training/aiu-moc-cdr-201502191555-00001_20150219#20150219160201#_192.168.35.199.dat"));
+		
+			while((cdr=br.readLine())!=null)
+			{
+				//System.out.println(Bytes.toString(rg.genLongRowkey(cdr, 10)).length());
+				System.out.println(Bytes.toString(rg.genShortRowkey(cdr, 4)));
+				counter++;
+			}
+			//br.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			try {
+				br.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
+		System.out.println((System.currentTimeMillis()-s)+"ms\ncounter:"+counter);
 
 	}
 	int msisdnIdx=0;
@@ -72,21 +102,23 @@ public class AIUMOCRowkeyGenerator extends RowkeyGenerator {
 		String[] cdrs=StrUtils.split(cdr, delim);
 		if(cdrs.length!=0)
 		{
-			long msisdn=Long.parseLong(cdrs[msisdnIdx]);
-			long starttime=Long.parseLong(cdrs[starttimeIdx]);
 			String cdrid=cdrs[cdrIDIdx];
 			int cdrID=0;
 			if(cdrid.length()>=4)
 			{
 				cdrid=cdrid.substring(cdrid.length()-4);
-				cdrID=Integer.parseInt(cdrid);
+				cdrID=Integer.valueOf(cdrid,16);
+				//System.out.println(cdrID);
 			}
 			else
 			{
 				cdrID=(int)Math.random()*10000;//生成随机的四位以内数字作为cdrid
 				//cdrid=StrUtils.leftPadWithZero(cid, 4);
 			}
-			
+			long msisdn=Long.parseLong(cdrs[msisdnIdx]);
+			//long msisdn=cdrs[msisdnIdx].hashCode();
+			long starttime=Long.parseLong(cdrs[starttimeIdx]);
+
 			return generateRowkey(numPartion, msisdn, starttime, cdrID);
 		}
 		return null;
