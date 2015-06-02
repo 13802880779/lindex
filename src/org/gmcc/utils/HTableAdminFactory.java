@@ -20,6 +20,7 @@ public interface HTableAdminFactory {
 	HColumnDescriptor getColumnDescriptor(String columnFamily, int lifetime,
     								int maxVersion, StoreFile.BloomType bloomType,Algorithm alg);
 	HTableDescriptor createTable(String tableName, boolean overWrite);
+	HTableDescriptor createTable(String tableName, byte[][]splitkeys, boolean overWrite);
 	HTableDescriptor createTable(String tableName,
 			List<HColumnDescriptor> hdlist, byte[][] splitkeys,
 			boolean overWrite);

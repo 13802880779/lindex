@@ -63,7 +63,7 @@ public abstract  class RowkeyFactory {
 	{
 	//	System.out.println("long rowkey generator:\nnumPartinon:"+numPartion+"\nmsisdn:"+msisdn+"\nstarttime:"+starttime+"\ncdrID:"+cdrID);
 
-		String rowkey;
+		StringBuffer rowkey=new StringBuffer();
 		int salt=0;
 		if(msisdn.length()>this.MSISDN_LEN)
 			msisdn=msisdn.substring(0,this.MSISDN_LEN);
@@ -72,13 +72,13 @@ public abstract  class RowkeyFactory {
 		salt=Math.abs(revMsisdnStr.hashCode())%numPartion;		
 		//System.out.println("hashcode:"+revMsisdnStr.hashCode());
 
-		rowkey=StrUtils.leftPadWithZero(salt,SALT_LEN)+"|";//salt补0到8位	
-		rowkey+=StringUtils.leftPad(revMsisdnStr, MSISDN_LEN,"0")+"|";//msisdn补0到11位
-		rowkey+=StrUtils.long2datestr(starttime)+"|";//17位
-		rowkey+=cdrID;//4位
+		rowkey.append(StrUtils.leftPadWithZero(salt,SALT_LEN)+"|");//salt补0到8位	
+		rowkey.append(StringUtils.leftPad(revMsisdnStr, MSISDN_LEN,"0")+"|");//msisdn补0到11位
+		rowkey.append(StrUtils.long2datestr(starttime)+"|");//17位
+		rowkey.append(cdrID);//4位
 		
 		//System.out.println("rowkey before bytes:"+rowkey);
-		return Bytes.toBytes(rowkey);
+		return Bytes.toBytes(rowkey.toString());
 	}
 	
 	

@@ -227,6 +227,16 @@ public class HTableAdminFactoryImpl implements HTableAdminFactory {
 		return true;
 		
 	}
+	@Override
+	public HTableDescriptor createTable(String tableName, byte[][] splitkeys,
+			boolean overWrite) {
+		// TODO Auto-generated method stub
+		HColumnDescriptor hcd=this.getColumnDescriptor("cf", TIME_TO_LIVE, MAX_VERSION, BLOOM_TYPE, COMPRESSION_ALG);
+		ArrayList l=new ArrayList();
+		l.add(hcd);
+		return this.createTable(tableName, l, splitkeys, overWrite);	
+		
+	}
 
 
 }
