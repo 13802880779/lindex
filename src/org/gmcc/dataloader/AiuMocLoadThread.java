@@ -41,9 +41,14 @@ public class AiuMocLoadThread extends Thread {
 	public static List RUNNING_STATE = new ArrayList();// store the state of
 														// running threads
 
+	public static long ROW_COUNTER=0;
+	
+	long rowcounter=0;
+	
 	String hTableName,confFilePath;
 	
 	public AiuMocLoadThread(File f, String tableName,String confFile) {
+		RUNNING_STATE.add(new Integer(1));
 		this.F = f;
 		this.hTableName=tableName;
 		this.confFilePath=confFile;
@@ -54,7 +59,7 @@ public class AiuMocLoadThread extends Thread {
 	}
 
 	public void run() {
-		RUNNING_STATE.add(new Integer(1));
+		
 		// System.out.println("Thread sleep 5s!");
 		BufferedReader br = null;
 		HTableInterface htable=null;
@@ -74,7 +79,7 @@ public class AiuMocLoadThread extends Thread {
 			AiuMocRowkeyGenerator rg = new AiuMocRowkeyGenerator();
 			rg.addConfiguration(this.confFilePath);//"/home/training/cdr_aiu_moc_conf.xml"
 			String cdr = "";
-			long s = System.currentTimeMillis();
+		//	long s = System.currentTimeMillis();
 			
 			// int counter=0;
 
@@ -88,7 +93,7 @@ public class AiuMocLoadThread extends Thread {
 				p.add(Bytes.toBytes("cf"), Bytes.toBytes("q"),//comlumn family  'cf' for default, column name 'Q'
 						Bytes.toBytes(cdr));
 				putList.add(p);
-				// counter++;
+				rowcounter++;
 				if (putList.size() > BATCH_SIZE) {
 					htable.put(putList);
 					htable.flushCommits();
@@ -102,14 +107,14 @@ public class AiuMocLoadThread extends Thread {
 				putList.clear();
 			}
 
-			System.out.println((System.currentTimeMillis()-s)+"ms");
+		//	System.out.println((System.currentTimeMillis()-s)+"ms");
 			
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			jobCompleted();
+			
 
 			try {
 				htable.close();
@@ -118,6 +123,7 @@ public class AiuMocLoadThread extends Thread {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			jobCompleted();
 			
 		}
 
@@ -125,6 +131,7 @@ public class AiuMocLoadThread extends Thread {
 
 	public void jobCompleted() {
 		// System.out.println("job completed!");
+		ROW_COUNTER+=rowcounter;
 		if (RUNNING_STATE != null && RUNNING_STATE.size() != 0)
 			RUNNING_STATE.remove(0);
 	}
@@ -133,5 +140,10 @@ public class AiuMocLoadThread extends Thread {
 		if (RUNNING_STATE.size() != 0)
 			return true;
 		return false;
+	}
+	
+	public static long getRowCounter()
+	{
+		return ROW_COUNTER;
 	}
 }

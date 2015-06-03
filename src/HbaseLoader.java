@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
@@ -20,21 +21,44 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.gmcc.dataloader.AiuMocLoader;
 
 
 public class HbaseLoader {
 
 	/**
 	 * @param args
-	 * @throws IOException 
-	 * @throws ParseException 
+	 * -d cdr type
+	 * -t tablename to create or to load to
+	 * -p partionNum
+	 * -f filepath to load
+	 * -c configuration file path
+	 * -tn threadNum
+	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		//scanIndex();
-
+		if(args.length!=12)
+		{
+			System.out.println(args.length+" invalid args,usage: -d cdrType -t tableName -p partionNum -f filePath -c confFilePath -tn threadNum");
+			System.exit(1);
+		}
+		
+		String cdrType=args[1];
+		String tableName=args[3];
+		int partionNum=Integer.parseInt(args[5])>0?Integer.parseInt(args[5]):1;
+		String filepath=args[7];
+		String conffilepath=args[9];
+		int threadNum=Integer.parseInt(args[11])>0?Integer.parseInt(args[11]):1;
+		
+		if("AIU_MOC".equalsIgnoreCase(cdrType))
+			AiuMocLoader.loadAiuMocCdr(tableName, partionNum, filepath, conffilepath, threadNum);
 		
 	}
+	
+	
+	
 	public static void scanIndex() throws Exception
 	{
 		int bk=50;
@@ -151,7 +175,6 @@ public class HbaseLoader {
 			offset=Bytes.putInt(rowkey, offset, salt);	
 			offset=Bytes.putInt(rowkey, offset, bk);	
 			offset=Bytes.putLong(rowkey, offset, ts);	
-			///Bytes.put
 			//System.out.println(Bytes.toBytes(salt));
 			//offset=Bytes.putBytes(rowkey, offset, Bytes.toBytes(salt), 0, intlength);
 			//System.out.println(rowkey);
@@ -282,7 +305,9 @@ public class HbaseLoader {
 			String token=line.substring(pos_s,line.length());		
 			System.out.println("==>"+token);	
 		}
-		System.out.print(pos_s+":"+line.length()+"");
+		System.out.print(pos_s+":"+line.length());
 
 	}
+	
+
 }
