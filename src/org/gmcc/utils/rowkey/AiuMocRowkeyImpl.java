@@ -1,4 +1,4 @@
-package org.gmcc.utils;
+package org.gmcc.utils.rowkey;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -9,8 +9,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.gmcc.utils.StrUtils;
 
-public class AiuMocRowkeyGenerator extends RowkeyFactory {
+public class AiuMocRowkeyImpl extends RowkeyFactory {
 
 	/**
 	 * @param args
@@ -18,8 +19,8 @@ public class AiuMocRowkeyGenerator extends RowkeyFactory {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		AiuMocRowkeyGenerator rg=new AiuMocRowkeyGenerator();
-		rg.addConfiguration("/home/training/cdr_aiu_moc_conf.xml");
+		AiuMocRowkeyImpl rg=new AiuMocRowkeyImpl("/home/training/cdr_aiu_moc_conf.xml");
+		//rg.addConfiguration();
 		String cdr="";
 		long s=System.currentTimeMillis();
 		BufferedReader br=null;
@@ -30,7 +31,7 @@ public class AiuMocRowkeyGenerator extends RowkeyFactory {
 			while((cdr=br.readLine())!=null)
 			{
 				//System.out.println(Bytes.toString(rg.genLongRowkey(cdr, 10)).length());
-				System.out.println(Bytes.toString(rg.genShortRowkey(cdr, 4)));
+				System.out.println(Bytes.toString(rg.genLongRowkey(cdr, 4)));
 				counter++;
 			}
 			//br.close();
@@ -55,7 +56,10 @@ public class AiuMocRowkeyGenerator extends RowkeyFactory {
 	int starttime_millisec_idx=0;
 	int cdrIDIdx=0;
 	String delim="";
-	
+	public AiuMocRowkeyImpl(String confpath)
+	{
+		this.addConfiguration(confpath);
+	}
 	public void addConfiguration(String confpath)
 	{
 		Configuration conf=new Configuration();
@@ -78,7 +82,7 @@ public class AiuMocRowkeyGenerator extends RowkeyFactory {
 	public byte[] genLongRowkey(String cdr,int numPartion)
 	{
 		String[] cdrs=StrUtils.split(cdr, delim);
-		
+		//System.out.println(cdr);
 		if(cdrs.length!=0)
 		{
 			String cdrID=cdrs[cdrIDIdx];

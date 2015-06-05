@@ -1,10 +1,10 @@
-package org.gmcc.utils;
+package org.gmcc.utils.tableadmin;
 
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -18,7 +18,7 @@ import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.hadoop.hbase.io.hfile.Compression;
 import org.apache.hadoop.hbase.io.hfile.Compression.Algorithm;
-import org.apache.hadoop.hbase.regionserver.StoreFile;
+
 import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -48,7 +48,7 @@ public class HTableAdminFactoryImpl implements HTableAdminFactory {
 	//HTablePool hp=null;
 	int TIME_TO_LIVE=-1;
 	int MAX_VERSION=1;
-	StoreFile.BloomType BLOOM_TYPE=StoreFile.BloomType.ROW;
+	BloomType BLOOM_TYPE=BloomType.ROW;
 	Compression.Algorithm COMPRESSION_ALG=Compression.Algorithm.SNAPPY;
 	
 	public HTableAdminFactoryImpl() throws Exception
@@ -175,11 +175,11 @@ public class HTableAdminFactoryImpl implements HTableAdminFactory {
 	}
 
     public HColumnDescriptor getColumnDescriptor(String columnFamily, int lifetime,
-            int maxVersion, StoreFile.BloomType bloomType,Algorithm alg)
+            int maxVersion, BloomType bloomType,Algorithm alg)
     {
     	HColumnDescriptor hd=new HColumnDescriptor(columnFamily);
     	if(null==bloomType)
-    		hd.setBloomFilterType(StoreFile.BloomType.ROW);//default ROW
+    		hd.setBloomFilterType(BloomType.ROW);//default ROW
     	else
     		hd.setBloomFilterType(bloomType);
     	if(null==alg)

@@ -1,7 +1,8 @@
-package org.gmcc.utils;
+package org.gmcc.utils.tableadmin;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.gmcc.utils.StrUtils;
 
 public class TablePartionerManager {
 

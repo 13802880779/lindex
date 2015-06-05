@@ -1,6 +1,7 @@
 package org.gmcc.utils;
 
 import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -27,10 +28,13 @@ public class StrUtils {
 	
 	public static String  long2datestr(long t)
 	{
-		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddhhmmssSSS");
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 		Date d=new Date(t);
 		return format.format(d);	
 	}
+	
+	//public static String 
+	
 	
 	public static String leftPadWithZero(Object l,int len)
 	{

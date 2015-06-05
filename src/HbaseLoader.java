@@ -21,7 +21,11 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.gmcc.dataloader.AiuMocLoader;
+import org.gmcc.tableLoader.AiuMocLoader;
+import org.gmcc.tableLoader.CdrLoader;
+import org.gmcc.utils.rowkey.AiuMocRowkeyImpl;
+import org.gmcc.utils.rowkey.PsUserServiceRowkeyImpl;
+import org.gmcc.utils.rowkey.RowkeyFactory;
 
 
 public class HbaseLoader {
@@ -39,8 +43,11 @@ public class HbaseLoader {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		//scanIndex();
+		//for(int i=0; i<args.length;i++)
+		//	System.out.println(args[i]);
 		if(args.length!=12)
 		{
+
 			System.out.println(args.length+" invalid args,usage: -d cdrType -t tableName -p partionNum -f filePath -c confFilePath -tn threadNum");
 			System.exit(1);
 		}
@@ -52,8 +59,21 @@ public class HbaseLoader {
 		String conffilepath=args[9];
 		int threadNum=Integer.parseInt(args[11])>0?Integer.parseInt(args[11]):1;
 		
+		RowkeyFactory rf;
+		
 		if("AIU_MOC".equalsIgnoreCase(cdrType))
-			AiuMocLoader.loadAiuMocCdr(tableName, partionNum, filepath, conffilepath, threadNum);
+		{
+			rf=new AiuMocRowkeyImpl(conffilepath);
+			CdrLoader.loadCdr(tableName, true, partionNum, filepath, rf, threadNum);
+			
+		}
+		if("PS_USERSERVICE".equalsIgnoreCase(cdrType))
+		{
+			rf=new PsUserServiceRowkeyImpl(conffilepath);
+			CdrLoader.loadCdr(tableName, true, partionNum, filepath, rf, threadNum);
+			
+		}
+		//	AiuMocLoader.loadAiuMocCdr(tableName, partionNum, filepath, conffilepath, threadNum);
 		
 	}
 	

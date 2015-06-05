@@ -1,4 +1,4 @@
-package org.gmcc.utils;
+package org.gmcc.utils.rowkey;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -11,6 +11,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.gmcc.utils.StrUtils;
 
 public abstract  class RowkeyFactory {
 
@@ -25,9 +26,10 @@ public abstract  class RowkeyFactory {
 	}
 	
 
-	protected abstract void addConfiguration(String path);
-	protected abstract byte[] genLongRowkey(String cdr,int numPartion);
-	protected abstract byte[] genShortRowkey(String cdr,int numPartion);
+	
+	public abstract void addConfiguration(String path);
+	public abstract byte[] genLongRowkey(String cdr,int numPartion);
+	public abstract byte[] genShortRowkey(String cdr,int numPartion);
 
 	public int MSISDN_LEN=11;
 	public int SALT_LEN=8; 
@@ -65,8 +67,9 @@ public abstract  class RowkeyFactory {
 
 		StringBuffer rowkey=new StringBuffer();
 		int salt=0;
-		if(msisdn.length()>this.MSISDN_LEN)
-			msisdn=msisdn.substring(0,this.MSISDN_LEN);
+	//	System.out.println(msisdn.length()+":"+this.MSISDN_LEN);
+	//	if(msisdn.length()>this.MSISDN_LEN)
+	//		msisdn=msisdn.substring(0,this.MSISDN_LEN);
 		
 		String revMsisdnStr=(new StringBuffer(""+msisdn)).reverse().toString();
 		salt=Math.abs(revMsisdnStr.hashCode())%numPartion;		
