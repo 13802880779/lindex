@@ -63,7 +63,7 @@ public abstract  class RowkeyFactory {
 	
 	protected byte[] generateRowkey(int numPartion, String msisdn, long starttime, String cdrID)
 	{
-	//	System.out.println("long rowkey generator:\nnumPartinon:"+numPartion+"\nmsisdn:"+msisdn+"\nstarttime:"+starttime+"\ncdrID:"+cdrID);
+		//System.out.println("long rowkey generator:\nnumPartinon:"+numPartion+"\nmsisdn:"+msisdn+"\nstarttime:"+starttime+"\ncdrID:"+cdrID);
 
 		StringBuffer rowkey=new StringBuffer();
 		int salt=0;
