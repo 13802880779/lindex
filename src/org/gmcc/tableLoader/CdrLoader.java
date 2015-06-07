@@ -94,7 +94,10 @@ public class CdrLoader {
 			
 		}
 		
-		System.out.println("load file to hbase table "+tableName+" finished! \nused time:"+(System.currentTimeMillis()-stime)+"ms\nrow count:"+CdrLoaderThread.getRowCounter());
+		System.out.println("load file to hbase table "+tableName+" finished! \nused time:"
+		+(System.currentTimeMillis()-stime)
+		+"ms\ninserted row count:"+CdrLoaderThread.getRowCounter()
+		+"\n skipped row count:"+CdrLoaderThread.getSkippedRowCounter());
 
 	}
 }

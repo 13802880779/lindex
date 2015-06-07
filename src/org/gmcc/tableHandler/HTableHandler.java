@@ -23,11 +23,17 @@ public class HTableHandler {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		HTableHandler hth =new HTableHandler("aiu_moc_20150219");
-		String msisdn="139vG3OLQ7pXFU=3129";
+		HTableHandler hth =new HTableHandler("ps_userservice_20150219");
+		String msisdn="86139vG3OLQ7pXFU=3129";
 		String starttime="20150219000000000";
 		String endtime="20150219235959999";
 		try {
+			
+			ArrayList al=hth.scan(msisdn,starttime,endtime);
+			for(Object cdr:al)
+			{
+				System.out.println((String)cdr);
+			}
 			//188BDnY0HQISUo=7720,139vG3OLQ7pXFU=3129
 			/*ArrayList al=hth.getAllCalledMsisdns(msisdn, starttime, endtime);
 			for(Object called:al)
@@ -38,7 +44,7 @@ public class HTableHandler {
 					hth.getAllCalledMsisdns((String)called2, starttime, endtime);
 				}
 			}*/
-			hth.scanRelations(msisdn, starttime, endtime,5,0,new HashMap());
+			//hth.scanRelations(msisdn, starttime, endtime,5,0,new HashMap());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -101,7 +107,7 @@ public class HTableHandler {
 		salt=Math.abs(revMsisdnStr.hashCode())%4;	//numPartion	
 
 		rowkey.append(StrUtils.leftPadWithZero(salt,4)+"|");
-		rowkey.append(StringUtils.leftPad(revMsisdnStr, 19,"0")+"|");//msisdn补0到11位
+		rowkey.append(StringUtils.leftPad(revMsisdnStr, 21,"0")+"|");//msisdn补0到11位,应该从conf中读取
 		
 		String startkey=rowkey.toString()+starttime;
 		String endkey=rowkey.toString()+endtime;

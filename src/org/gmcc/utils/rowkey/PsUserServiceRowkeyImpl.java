@@ -110,7 +110,8 @@ public class PsUserServiceRowkeyImpl extends RowkeyFactory {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return generateRowkey(numPartion, cdrs[msisdnIdx], c.getTimeInMillis(), cdrID);
+			if(!"".equals(cdrs[msisdnIdx]))
+				return generateRowkey(numPartion, cdrs[msisdnIdx], c.getTimeInMillis(), cdrID);
 		}
 	
 		return null;

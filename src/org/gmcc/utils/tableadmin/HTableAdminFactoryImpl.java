@@ -53,6 +53,9 @@ public class HTableAdminFactoryImpl implements HTableAdminFactory {
 	public HTableAdminFactoryImpl() throws Exception
 	{
 		Configuration conf=HBaseConfiguration.create();
+
+	//	conf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());  
+	//	conf.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
 		hbaseAdmin=new HBaseAdmin(conf);
 	//	hp=new HTablePool();
 		

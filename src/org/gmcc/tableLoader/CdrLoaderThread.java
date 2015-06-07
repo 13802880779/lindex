@@ -43,8 +43,10 @@ public class CdrLoaderThread extends Thread {
 														// running threads
 
 	public static long ROW_COUNTER=0;
+	public static long SKIPPED_ROW_COUNTER=0;
 	
 	long rowcounter=0;
+	long skippedrowcounter=0;
 	
 	String hTableName,confFilePath;
 	RowkeyFactory rg;
@@ -92,8 +94,13 @@ public class CdrLoaderThread extends Thread {
 			while ((cdr = br.readLine()) != null) {
 				// System.out.println(Bytes.toString(rg.genLongRowkey(cdr,
 				// 10)).length());
-
-				Put p = new Put(rg.genLongRowkey(cdr, NUM_PARTION));
+				byte[] rk=rg.genLongRowkey(cdr, NUM_PARTION);
+				if(rk==null)
+				{	
+					skippedrowcounter++;
+					continue;				
+				}
+				Put p = new Put(rk);
 				p.add(Bytes.toBytes("cf"), Bytes.toBytes("q"),//comlumn family  'cf' for default, column name 'Q'
 						Bytes.toBytes(cdr));
 				putList.add(p);
@@ -136,6 +143,7 @@ public class CdrLoaderThread extends Thread {
 	public void jobCompleted() {
 		// System.out.println("job completed!");
 		ROW_COUNTER+=rowcounter;
+		SKIPPED_ROW_COUNTER+=skippedrowcounter;
 		if (RUNNING_STATE != null && RUNNING_STATE.size() != 0)
 			RUNNING_STATE.remove(0);
 	}
@@ -149,5 +157,9 @@ public class CdrLoaderThread extends Thread {
 	public static long getRowCounter()
 	{
 		return ROW_COUNTER;
+	}
+	public static long getSkippedRowCounter()
+	{
+		return SKIPPED_ROW_COUNTER;
 	}
 }

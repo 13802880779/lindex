@@ -94,8 +94,8 @@ public class AiuMocRowkeyImpl extends RowkeyFactory {
 			}
 			
 			long st=Long.parseLong(cdrs[starttimeIdx])*1000+Long.parseLong(cdrs[starttime_millisec_idx]);
-			
-			return generateRowkey(numPartion, cdrs[msisdnIdx], st, cdrID);
+			if(!"".equals(cdrs[msisdnIdx]))
+				return generateRowkey(numPartion, cdrs[msisdnIdx], st, cdrID);
 		}
 	
 		return null;
